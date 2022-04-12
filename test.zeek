@@ -1,15 +1,16 @@
 global iptable:table[addr] of set[string]=table();
-event http_reply(c: connection, version: string, code: count, reason: string)
+event http_header(c: connection, is_orig:bool, name:string, value: string)
 {
 if(c$id$orig_h in iptable)
 {
 add iptable[c$id$orig_h][c$http$user_agent];
-if(|iptable[c$id$orig_h]|>=3)
-print c$id$orig_h;
-print " is a proxy";
 }
-}
-event zeek_done()
+else
 {
-print "hello world";
+iptable[c$id$orig_h]=set(c$http$user_agent);
+}
+if(|iptable[c$id$orig_h]|>=3)
+{
+print fmt("%s is a proxy",c$id$orig_h);
+}
 }
